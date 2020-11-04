@@ -35,10 +35,6 @@ app.use(requestLogger);
 
 app.use(router);
 
-app.use(() => {
-  throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
-});
-
 app.use(errorLogger);
 app.use(errors());
 
