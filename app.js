@@ -8,7 +8,7 @@ const { limiter } = require('./middlewares/limiter');
 const router = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { errorHandler } = require('./middlewares/errorHandler');
-const NotFoundError = require('./errors/NotFoundError');
+const { BASE_URL_DEV } = require('./utils/config');
 
 const { NODE_ENV, BASE_URL } = process.env;
 
@@ -16,7 +16,7 @@ const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false }));
 
-mongoose.connect(NODE_ENV === 'production' ? BASE_URL : 'mongodb://localhost:27017/newsdb', {
+mongoose.connect(NODE_ENV === 'production' ? BASE_URL : BASE_URL_DEV, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,

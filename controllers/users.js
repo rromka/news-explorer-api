@@ -5,6 +5,14 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const {
+  success,
+  notFound,
+  unauthorized,
+  badRequest,
+  conflict,
+} = require('../utils/constants');
+const { JWT_SECRET_DEV } = require('../utils/config');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -15,45 +23,57 @@ const createUser = (req, res, next) => {
     name,
   } = req.body;
 
-  return bcrypt.hash(password, 10, (error, hash) => User.findOne({ email })
+  User.findOne({ email })
     .then((user) => {
-      if (user) return next(new ConflictError('Пользователь с таким email уже есть'));
+      if (user) {
+        throw new ConflictError(conflict);
+      }
 
-      return User.create({
-        email,
-        password: hash,
-        name,
-      })
-        .then(() => res.status(200).send({ message: `Пользователь ${email} успешно создан!` }))
-        .catch(() => new BadRequestError('Ошибка в запросе'));
+      return bcrypt.hash(password, 10)
+        .then((hash) => User.create({
+          email,
+          password: hash,
+          name,
+        }))
+        .then(() => res.send({ message: success }))
+        .catch(() => new BadRequestError(badRequest));
     })
-    .catch(next));
+
+    .catch(next);
 };
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-
-  return User.findOne({ email }).select('+password')
+  User.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) throw new UnauthorizedError('Нет пользователя с таким email');
+      if (!user) {
+        throw new UnauthorizedError(unauthorized);
+      }
 
-      bcrypt.compare(password, user.password, (error, isValidPassword) => {
-        if (!isValidPassword) return new UnauthorizedError('Пароль не верный');
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new UnauthorizedError(unauthorized);
+          }
 
-        const token = jwt.sign(
-          { _id: user._id },
-          NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
-          { expiresIn: '7d' },
-        );
-        return res.status(200).send({ token });
-      });
+          return user; // теперь user доступен
+        });
+    })
+    .then((user) => {
+      // аутентификация успешна
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_DEV,
+        { expiresIn: '7d' },
+      );
+      return res.status(200).send({ token });
     })
     .catch(next);
 };
 
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFoundError('Нет пользователя с таким id'))
+    .orFail(new NotFoundError(notFound))
     .then((user) => res.status(200)
       .send(user))
     .catch(next);

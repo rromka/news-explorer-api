@@ -1,8 +1,8 @@
 {
   "name": "news-explorer-api",
   "version": "1.0.0",
-  "description": "",
-  "main": ".eslintrc.js",
+  "description": "API for News Explorer",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
@@ -13,25 +13,20 @@
     "celebrate": "^13.0.3",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
-    "debug": "~2.6.9",
     "dotenv": "^8.2.0",
-    "eslint-config-airbnb": "^18.2.0",
-    "eslint-plugin-import": "^2.22.0",
     "express": "~4.16.1",
     "express-rate-limit": "^5.1.3",
     "express-winston": "^4.0.5",
     "helmet": "^4.2.0",
-    "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.5",
-    "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11",
     "validator": "^13.1.17",
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "cors": "^2.8.5",
     "eslint": "^7.8.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "nodemon": "^2.0.4"
   },
   "repository": {

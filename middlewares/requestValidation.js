@@ -1,4 +1,4 @@
-const { celebrate, Joi } = require('celebrate');
+const { CelebrateError, celebrate, Joi } = require('celebrate');
 const { isURL } = require('validator');
 
 // Валидация запросов к пользователям
@@ -27,7 +27,7 @@ const validateGetUserInfo = celebrate({
 // Валидация запросов к статьям
 
 const validateGetArticles = celebrate({
-  body: Joi.object().keys({
+  headers: Joi.object().keys({
     id: Joi.string().hex().length(24),
   }).unknown(true),
 });
@@ -39,19 +39,23 @@ const validateCreateArticle = celebrate({
     text: Joi.string().required(),
     date: Joi.string().required(),
     source: Joi.string().required(),
-    link: Joi.string().required().custom((value, helpers) => {
-      if (!isURL(value)) return helpers.error('Невалидная ссылка');
+    link: Joi.string().required().custom((value) => {
+      if (!isURL(value)) {
+        throw new CelebrateError('Невалидная ссылка');
+      }
       return value;
     }),
-    image: Joi.string().required().custom((value, helpers) => {
-      if (!isURL(value)) return helpers.error('Невалидная ссылка');
+    image: Joi.string().required().custom((value) => {
+      if (!isURL(value)) {
+        throw new CelebrateError('Невалидная ссылка');
+      }
       return value;
     }),
   }).unknown(true),
 });
 
 const validateRemoveArticle = celebrate({
-  body: Joi.object().keys({
+  params: Joi.object().keys({
     articleId: Joi.string().hex().length(24),
   }).unknown(true),
 });

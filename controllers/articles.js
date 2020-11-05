@@ -1,7 +1,7 @@
 const Article = require('../models/article');
 const NotFoundError = require('../errors/NotFoundError');
-const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const { notFound, forbidden } = require('../utils/constants');
 
 const createArticle = (req, res, next) => {
   const {
@@ -19,9 +19,6 @@ const createArticle = (req, res, next) => {
     owner: req.user._id,
   })
     .then((article) => {
-      if (!article) {
-        throw new BadRequestError('Введены некорректные данные');
-      }
       res.send(article);
     })
     .catch(next);
@@ -37,17 +34,18 @@ const getArticles = (req, res, next) => {
 const removeArticle = (req, res, next) => {
   const { articleId } = req.params;
   const { _id: userId } = req.user;
+
   Article.findById(articleId).select('+owner')
     .then((article) => {
       if (!article) {
-        throw new NotFoundError('Нет статьи с таким id');
+        throw new NotFoundError(notFound);
       }
       if (`${article.owner}` === userId) {
         Article.findOneAndRemove(articleId)
           .then(() => res.send({ data: article }))
           .catch(next);
       } else {
-        throw new ForbiddenError('Это не ваша статья');
+        throw new ForbiddenError(forbidden);
       }
     })
     .catch(next);
