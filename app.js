@@ -24,7 +24,7 @@ mongoose.connect(NODE_ENV === 'production' ? BASE_URL : BASE_URL_DEV, {
 });
 
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: 'http://localhost:3000',
   credentials: true,
 }));
 
